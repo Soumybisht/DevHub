@@ -1,0 +1,19 @@
+{
+  "name": "devhub",
+  "version": "1.0.0",
+  "description": "a hub for connecting developers",
+  "scripts": {
+    "dev":"nodemon src/app.js"
+  },
+  "keywords": [
+    "nodejs",
+    "express",
+    "restAPI",
+    "backend"
+  ],
+  "author": "Soumy Bisht",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
