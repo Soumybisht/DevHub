@@ -1,0 +1,84 @@
+const {adminAuth,userAuth} = require("./middlewares/auth");
+
+app.use("/admin",adminAuth); //middleware checking for admin authentication
+
+app.get("/admin/getData",(req,res)=>{
+    throw new Error("adasdsdfsdf"); // we can also try catch
+    res.send("got admin data");
+})
+
+app.get("/admin/deleteData",(req,res)=>{
+    try{
+        throw new Error("asfsfdfg");
+        res.send("deleted admin data");
+    }
+    catch{
+        res.status(500).send("some new error");
+    }
+});
+
+app.get("/user/login",(req,res)=>{
+    res.send("logined the user");
+});
+
+app.get("/user/data",userAuth,(req,res)=>{
+    res.send("got the user data");
+});
+
+
+app.use("/",(err,req,res,next)=>{       //must always be written at the end as it will catch error if try catch is not used. it should be placed the last of the code to catch if any error occur any where
+    if(err){
+        res.status(500).send("something went wrong");
+    }
+})
+
+
+
+
+
+
+app.use("/route",(req,res,next)=>{    //this request handler is a middleware
+    console.log("first response"); 
+    //res.send("response 1");
+    next();
+},
+(req,res,next)=>{                       // this is also a middleware
+    console.log("second response");
+    //res.send("response 2");
+    next();
+},
+(req,res,next)=>{                       //this is the response handler
+    console.log("third response");
+    res.send("response 3");
+}
+);
+
+
+
+
+// in postman use api = http://localhost:3000/user?userId=101
+app.get("/user",(req,res)=>{
+    console.log(req.query);
+    res.send("call made using get method");
+});
+
+
+//dynamic routing
+//in postman use api = http://localhost:3000/user/111/soumy
+app.post("/user/:id/:name",(req,res)=>{
+    console.log(req.params);
+    res.send("call made using post method");
+});
+
+app.delete("/user",(req,res)=>{
+    res.send("call made using delete method");
+});
+
+app.patch("/user",(req,res)=>{
+    res.send("call made using patch method");
+});
+
+app.use("/user",(req,res)=>{
+
+    res.send("Hello using use method");
+});

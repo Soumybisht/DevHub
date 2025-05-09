@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "a hub for connecting developers",
   "scripts": {
-    "dev":"nodemon src/app.js"
+    "dev": "nodemon src/app.js"
   },
   "keywords": [
     "nodejs",
@@ -14,6 +14,7 @@
   "author": "Soumy Bisht",
   "license": "ISC",
   "dependencies": {
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "mongoose": "^8.14.2"
   }
 }

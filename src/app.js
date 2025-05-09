@@ -1,92 +1,95 @@
 const express = require("express");
-
 const app = express();
+const connectDB = require("./config/database");
+const User = require("./models/user");
 
-const {adminAuth,userAuth} = require("./middlewares/auth");
+app.use(express.json());
 
-app.use("/admin",adminAuth); //middleware checking for admin authentication
+// API for signing up user inserting data into the database
+app.post("/signup",async (req,res)=>{
 
-app.get("/admin/getData",(req,res)=>{
-    throw new Error("adasdsdfsdf"); // we can also try catch
-    res.send("got admin data");
-})
-
-app.get("/admin/deleteData",(req,res)=>{
+    //console.log(req.body);
+    // creating a new instance of the User mmodel
+    const user = new User(req.body);
     try{
-        throw new Error("asfsfdfg");
-        res.send("deleted admin data");
+        await user.save();
+        res.send("user created successfully");
+    }catch(err){
+        res.status(400).send("something went wrong");
     }
-    catch{
-        res.status(500).send("some new error");
+
+});
+
+// API for getting user data by using their emialId
+app.get("/user",async (req,res)=>{
+
+    const userEmail = req.body.emailId;
+
+    try{
+        const user = await User.find({emailId:userEmail});
+        if(user.length===0){
+        res.status(404).send("User not found");
+        }
+        else{
+        res.send(user);
+        }
     }
-});
+    catch(err){
+        res.status(404).send("User not found");
+    }
 
-app.get("/user/login",(req,res)=>{
-    res.send("logined the user");
-});
-
-app.get("/user/data",userAuth,(req,res)=>{
-    res.send("got the user data");
-});
+}) 
 
 
-app.use("/",(err,req,res,next)=>{       //must always be written at the end as it will catch error if try catch is not used. it should be placed the last of the code to catch if any error occur any where
-    if(err){
-        res.status(500).send("something went wrong");
+// API to get feed data - get data of all the users in database
+app.get("/feed",async (req,res)=>{
+
+    try{
+        const user = await User.find();
+        if(user.length===0){
+        res.status(404).send("User not found");
+        }
+        else{
+        res.send(user);
+        }
+    }
+    catch(err){
+        res.status(404).send("User not found");
+    }
+
+})
+
+//API to delete the user data by finding userId
+app.delete("/user",async (req,res)=>{
+
+    const userId = req.body.userId;
+    try{
+        const user = await User.findByIdAndDelete({_id:userId});
+        res.send("user deleted successfully");
+    }catch(err){
+        res.status(500).send("error");
     }
 })
 
+//API to update user data
+app.patch("/user",async (req,res)=>{
+    const userId = req.body.userId;
+    const data = req.body;
+    try{
+        const user = await User.findOneAndUpdate({_id:userId},data,{returnDocument:"before"});
+        res.send("user updated successfully");
+    }catch(err){
+        res.status(500).send("error");
+    }
+    
+})
 
-
-
-
-
-app.use("/route",(req,res,next)=>{    //this request handler is a middleware
-    console.log("first response"); 
-    //res.send("response 1");
-    next();
-},
-(req,res,next)=>{                       // this is also a middleware
-    console.log("second response");
-    //res.send("response 2");
-    next();
-},
-(req,res,next)=>{                       //this is the response handler
-    console.log("third response");
-    res.send("response 3");
-}
-);
-
-
-
-
-// in postman use api = http://localhost:3000/user?userId=101
-app.get("/user",(req,res)=>{
-    console.log(req.query);
-    res.send("call made using get method");
-});
-
-
-//dynamic routing
-//in postman use api = http://localhost:3000/user/111/soumy
-app.post("/user/:id/:name",(req,res)=>{
-    console.log(req.params);
-    res.send("call made using post method");
-});
-
-app.delete("/user",(req,res)=>{
-    res.send("call made using delete method");
-});
-
-app.patch("/user",(req,res)=>{
-    res.send("call made using patch method");
-});
-
-app.use("/user",(req,res)=>{
-
-    res.send("Hello using use method");
-});
-
-app.listen(3000,()=>{
+connectDB().then(()=>{
+    console.log("connection established successfully");
+    app.listen(3000,()=>{
     console.log("Server is running successfully on port 3000");
 });
+}).catch(()=>{
+    console.log("connection to database failed");
+})
+
