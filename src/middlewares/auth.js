@@ -1,29 +1,28 @@
-const adminAuth = (req,res,next)=>{
-    console.log("middleware is authenticating the admin")
-    const token = "abc";
-    const authToken = token === "abc";
+const User = require("../models/user");
+const jsonWebToken = require("jsonwebtoken");
 
-    if(authToken){
+const userAuth = async (req,res,next)=>{
+
+    
+    try{
+        
+        const {token} = req.cookies;
+
+        if(!token){
+            throw new Error("Token expired or Invalid");
+        }
+
+        const decodedTokenValue = jsonWebToken.verify(req.cookies.token,"secretKey");
+        console.log(decodedTokenValue);
+        const user = await User.findOne({_id:decodedTokenValue._id});
+        req.user = user;
         next();
-    }
-    else{
-        res.status(401).send("Unauthorized request");
-    }
-};
 
-const userAuth = (req,res,next)=>{
-    console.log("middleware is authenticating the user")
-    const token = "abc";
-    const authToken = token === "abc";
-
-    if(authToken){
-        next();
-    }
-    else{
-        res.status(401).send("Unauthorized request");
+    }catch(err){
+        res.status(404).send("Please Login again");
     }
 };
 
 module.exports = {
-    adminAuth,userAuth
+    userAuth,
 }
