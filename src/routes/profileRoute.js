@@ -20,8 +20,9 @@ profileRouter.get("/profile",userAuth,async (req,res)=>{
 profileRouter.patch("/profile/edit",userAuth,async (req,res)=>{
     const data = req?.body;
     try{
+        const loggedInUser = req.user;
 
-        const allowedUpdates = ["firstName","lastName","about","photo","gender","skills"];
+        const allowedUpdates = ["firstName","lastName","about","photo","gender","skills","age"];
 
         const isUpdated = Object.keys(data).every((k)=>{
             return allowedUpdates.includes(k);
@@ -29,13 +30,17 @@ profileRouter.patch("/profile/edit",userAuth,async (req,res)=>{
         if(!isUpdated){
             throw new Error("Invalid Update format"); 
         }
-        if(data?.skills.length>10){
+        if(data.skills && data?.skills.length>10){
             throw new Error("Skills number should be less than 10");
         }
+        Object.keys(req.body).forEach((key) => (loggedInUser[key] = req.body[key]));
 
-        const user = req.user; 
-        await User.findOneAndUpdate({_id:user._id},data,{returnDocument:"before",runValidators:true});
-        res.send("user updated successfully");
+        await loggedInUser.save();
+
+        res.json({message:"user updated successfully",
+            data:loggedInUser
+
+        });
     }catch(err){
         res.status(500).send("Update Failed: "+err.message);
     }
