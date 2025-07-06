@@ -19,12 +19,6 @@ connectionRequestRouter.post("/request/send/:status/:toUserId",userAuth,async (r
             return res.status(400).send("Wrong status type: "+status);
         }
 
-        const connectionRequest = new ConnectionRequest({
-            fromUserId:fromUserId,
-            toUserId:toUserId,
-            status:status,
-        });
-
         const duplicateRequest = await ConnectionRequest.findOne({
             $or:[{fromUserId,toUserId},{fromUserId:toUserId,toUserId:fromUserId}],
         });
@@ -42,6 +36,12 @@ connectionRequestRouter.post("/request/send/:status/:toUserId",userAuth,async (r
                 message:"Cannot send request to self"
             })
         }
+
+        const connectionRequest = new ConnectionRequest({
+            fromUserId,
+            toUserId,
+            status,
+        });
 
         const data = await connectionRequest.save();
 
@@ -73,9 +73,9 @@ connectionRequestRouter.post("/request/review/:status/:requestId",userAuth,async
             status:"interested",
         });
 
-        if(!connectionRequest){
-            return res.status(400).send("Cannot accept request");
-        }
+        // if(!connectionRequest){
+        //     return res.status(400).send("Cannot accept request: ");
+        // }
 
         connectionRequest.status = status;
         const data = await connectionRequest.save();
@@ -90,6 +90,7 @@ connectionRequestRouter.post("/request/review/:status/:requestId",userAuth,async
     }
 
 })
+
 
 
 module.exports = {connectionRequestRouter};

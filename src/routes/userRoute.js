@@ -16,12 +16,9 @@ userRouter.get("/user/request/received",userAuth,async (req,res)=>{
             toUserId:loggedInUser._id,
             status:"interested",
         }).populate("fromUserId",USER_SAFE_DATA);
-
-        const data = receivedRequests.map((con)=>con.fromUserId);
-
         res.json({
             message:"Requests received successfully",
-            data
+            data:receivedRequests,
         })
 
     }catch(err){
