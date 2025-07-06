@@ -13,7 +13,6 @@ const userAuth = async (req,res,next)=>{
         }
 
         const decodedTokenValue = jsonWebToken.verify(req.cookies.token,"secretKey");
-        console.log(decodedTokenValue);
         const user = await User.findOne({_id:decodedTokenValue._id});
         req.user = user;
         next();

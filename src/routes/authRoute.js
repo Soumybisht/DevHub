@@ -16,23 +16,23 @@ authRouter.post("/signup",async (req,res)=>{
     //validation of api data using helpers
     validateData(req);
 
-    const {firstName,lastName,emailId,password,age,gender} = req?.body;
+    const {firstName,lastName,emailId,password} = req?.body;
 
 
     //Hashing password
     const passwordHash = await bcrypt.hash(password,10);
-    console.log(passwordHash);
 
     // creating a new instance of the User mmodel
     const user = new User({
-        firstName,lastName,emailId,password:passwordHash,age,gender
+        firstName,lastName,emailId,password:passwordHash
     });
     
-        if((req.body)?.skills.length>10){
-            throw new Error("Skills number should be less than 10");
-        }
-        await user.save();
-        res.send("user created successfully");
+        const savedUser = await user.save();
+        const token = await savedUser.getJWT();
+        res.cookie("token",token,{expires: new Date(Date.now()+7*3600000)});
+
+        res.json({message:"user created successfully",data:savedUser});
+        
     }catch(err){
         res.status(400).send("Error : "+err.message);
     }

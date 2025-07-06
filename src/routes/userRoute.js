@@ -34,18 +34,17 @@ try{
 
     const getConnections = await ConnectionRequest.find({
         $or:[
-            {fromUserId:loggedInUser._id,status:"accepted"},
             {toUserId:loggedInUser._id,status:"accepted"},
+            {fromUserId:loggedInUser._id,status:"accepted"},
         ]
     }).populate("fromUserId",USER_SAFE_DATA).populate("toUserId",USER_SAFE_DATA);
 
-    const data = getConnections.map((con)=>{
-        if(con.fromUserId.toString() === loggedInUser._id.toString()){
-            return con.fromUserId;
-        }
-        else{
-            return con.toUserId;
-        }
+    const data = getConnections.map((con) => {
+    if (con.fromUserId._id.toString() === loggedInUser._id.toString()) {
+        return con.toUserId;
+    }
+    return con.fromUserId;
+        
     });
     res.json({
         message:"Connections fetched successfully",

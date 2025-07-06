@@ -73,9 +73,9 @@ connectionRequestRouter.post("/request/review/:status/:requestId",userAuth,async
             status:"interested",
         });
 
-        // if(!connectionRequest){
-        //     return res.status(400).send("Cannot accept request: ");
-        // }
+        if(!connectionRequest){
+            return res.status(400).send("Cannot accept request: ");
+        }
 
         connectionRequest.status = status;
         const data = await connectionRequest.save();
